@@ -19,18 +19,30 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.view.View;
 import android.widget.Button;
+import android.widget.ExpandableListView;
+import android.widget.TextView;
+
+import java.io.File;
 
 public class MainActivity extends AppCompatActivity {
 
+    private ExpandableListView listView;
+
+    private TextView go,come,to;
+
     private Button x,y;
+
+    /*文件类用于读取分布类型数据*/
+    private File file;
+    /*该字符串组即是用来指向文件地址的*/
+    private String[] paths={};/////////////////////////////////////////////////////////////////////////////////////////////////
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-        x=(Button) findViewById(R.id.SAVE);
-        y=(Button) findViewById(R.id.HISTORT);
+        this.Init_Core();
 
         x.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -45,5 +57,13 @@ public class MainActivity extends AppCompatActivity {
 
             }
         });
+    }
+    private void Init_Core(){
+        listView=findViewById(R.id.My_list);
+        x=(Button) findViewById(R.id.record_B);
+        y=(Button) findViewById(R.id.more);
+        go=findViewById(R.id.cost);
+        come=findViewById(R.id.receive);
+        to=findViewById(R.id.count);
     }
 }
