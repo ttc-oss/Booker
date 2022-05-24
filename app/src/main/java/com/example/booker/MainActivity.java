@@ -17,12 +17,19 @@ import androidx.appcompat.app.AppCompatActivity;
 
 import android.content.Intent;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.ExpandableListView;
 import android.widget.TextView;
 
+import java.io.BufferedReader;
 import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.FileReader;
+import java.io.IOException;
+import java.time.LocalDate;
+import java.util.Calendar;
 
 public class MainActivity extends AppCompatActivity {
 
@@ -34,15 +41,22 @@ public class MainActivity extends AppCompatActivity {
 
     /*文件类用于读取分布类型数据*/
     private File file;
-    /*该字符串组即是用来指向文件地址的*/
-    private String[] paths={};/////////////////////////////////////////////////////////////////////////////////////////////////
-
+    /*该字符串组即是用来指向文件地址的*///???????????????????????????????????????????????????
+    private String[] paths={"time\\month\\first_week.txt","category\\content\\"};
+    private String path_count="count.txt";//具体的顺序为，总支出，总收入，总差额
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
         this.Init_Core();
+
+        this.money_text();
+
+        LocalDate date=LocalDate.now();
+        file=new File(getFilesDir(),paths[0]);
+
+
 
         x.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -65,5 +79,18 @@ public class MainActivity extends AppCompatActivity {
         go=findViewById(R.id.cost);
         come=findViewById(R.id.receive);
         to=findViewById(R.id.count);
+    }
+    private void money_text(){
+        file=new File(getFilesDir(),path_count);
+        try {
+            BufferedReader Br=new BufferedReader(new FileReader(file));
+            go.setText(Br.readLine());      //鲁棒性很差？？？？？？？？？？？？？，具体来说并没有一种安全机制使得一定读到所需内容？？？？？？？？？？？？？？？？？？
+            come.setText(Br.readLine());
+            to.setText(Br.readLine());
+        } catch (FileNotFoundException e) {
+            Log.i("Br","can't read");
+        } catch (IOException e) {
+            Log.i("readline","error");
+        }
     }
 }
