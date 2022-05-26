@@ -5,10 +5,17 @@ package com.example.booker;
            比较字符串的哈希值和直接比较字符串？？？？
         结论：
         问题部分：
-        1.那么第一个问题就是如何在Activity之间传递当前的映射数组*/
+        1.那么第一个问题就是如何在Activity之间传递当前的映射数组
 
-/*默认了数据在文件中时间最近的在开始*/
-/*至现在认为能够较好的将数据从内存中读取出来*/
+        顺序：
+        1.时间
+        2.种类
+        3.账户
+        4.金额
+
+        */
+
+/*现在应该可以认为数据提取较为准确了，    下一步投射至list view 创建线程读取数据*/
 
 import androidx.appcompat.app.AppCompatActivity;
 
@@ -26,14 +33,16 @@ import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.IOException;
+import java.text.SimpleDateFormat;
 import java.util.Calendar;
 
 public class MainActivity extends AppCompatActivity {
     //////////////////////////当前周or上周的总体数据,但不确定是否为4各一组？？？？？？？？？？？？？？？？？？？？？？？？？？？？？？？？？？？？
     private final int WIDTH_OF_DATA_SET=4;
-    /*这里首先默认数据存储时，时间最近的在第一项*/
-    private String[][] node=new String[100][WIDTH_OF_DATA_SET];     //应该可以用内部类包装一下。。。。。。。。。。。。。。。。。。。。。。。。。。。。。。。
-    private int count=0;
+    /*这里首先默认数据存储时，时间最近的在第一项*//*声明一天最多记20条！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！*/
+    private String[][][] node=new String[8][][];     //应该可以用内部类包装一下。。。。。。。。。。。。。。。。。。。。。。。。。。。。。。。
+    private int allcou=0;
+
 
     private ExpandableListView listView;
 
@@ -44,10 +53,13 @@ public class MainActivity extends AppCompatActivity {
     /*文件类用于读取分布类型数据*/
     private File file;
 
-    private String paths="time\\month\\first_week.txt";
     private String month_in;
     private String week_of_month;
-    private final String path_count="count.txt";//具体的顺序为，总支出，总收入，总差额
+    private String DaTe;
+    private String[] DaTes=new String[3];
+    private final String path_count="moncount.txt";//具体的顺序为，总支出，总收入
+    private final String file_out="_weeksequence_out.txt";
+    private final String file_in="_weeksequence_int.txt";
     /*当前日期*/
     private Calendar date;
 
@@ -55,19 +67,20 @@ public class MainActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+        getSupportActionBar().hide();
 
         this.Init_Core();
 
         date=Calendar.getInstance();
+        SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd");
+        DaTe=format.format(date.getTime());
         month_in=String.valueOf(date.get(Calendar.MONTH));//直接获取当前日期月份的值？？
-
-
 
         this.money_text(this.month_in);
 
         this.read_by();
 
-
+        this.setdata();
 
         x.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -116,28 +129,32 @@ public class MainActivity extends AppCompatActivity {
         }
     }
     /*扩充存储单元*/
-    private String[][] expand(int length){//////////////起名问题？？？？？？？？？？？？？？？？？？？？？？？？？？？？
-        String[][] re=new String[length+100][WIDTH_OF_DATA_SET];
+/*    private String[][] expand(String com){//////////////起名问题？？？？？？？？？？？？？？？？？？？？？？？？？？？？
+        String[][] re=new String[come.length()+100][WIDTH_OF_DATA_SET];
         for(int i=0;i<length;i++){
             re[i]=node[i];
         }
         return re;
-    }
+    }*/
 
 
 
     /*详细信息读取*/
     private void read_by(){                     //整理解析该函数。。。。。。。。。。。。。。。。。。。。。。。。。。。。。。。。。。。。。。。。。。
 
-        /*这一部分用来判定是否读取文件时，需要切换路径，顺便将”今日“的周数读出*/
+        /*这一部分用来判定是否读取文件时，需要切换路径，顺便将”今日“的周数读出,再者将所需的日期字符串读取出来*/
         int compare_week=date.get(Calendar.WEEK_OF_MONTH);
         week_of_month=String.valueOf(compare_week);//先假定返回一个阿拉伯数字！！！！！！！！！！！！！！！！！！！！！
         /*布尔式是用来告诉是否文件需要切换*/
         Boolean file_switch=true;
         Calendar cdate= (Calendar) date.clone();
         String item_mon=month_in;
+
+        SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd");
+
         for(int j=0;j<3;j++){
             cdate.add(Calendar.DATE,-j);
+            DaTes[j]=format.format(cdate.getTime());
             if(cdate.get(Calendar.WEEK_OF_MONTH)<compare_week){
                 file_switch=false;
                 break;
@@ -151,25 +168,60 @@ public class MainActivity extends AppCompatActivity {
 
 
         /*第二部分根据判定开始读取数据*/
-        if(file_switch){
-            file=new File(getFilesDir(),"time\\"+month_in+"月\\"+week_of_month+"_weeksequence.txt");
+        if(file_switch){                            //改吧，明显写的复用率极低。。。。。。。。。。。。。。。。。。。。。。。。。。。。。。。。。。。。。。。。。存在大量的临时方案
+
+            file=new File(getFilesDir(),"time\\"+month_in+"月\\"+week_of_month+file_out);
+
             if(file.exists()){
-
                 this.read_core(file);
+            }else {
+                Toast.makeText(this, "未找到最近的数据", Toast.LENGTH_SHORT).show();
+            }
 
+            allcou=4;
+
+            file=new File(getFilesDir(),"time\\"+month_in+"月\\"+week_of_month+file_in);
+
+            if(file.exists()){
+                this.read_core(file);
             }else {
                 Toast.makeText(this, "未找到最近的数据", Toast.LENGTH_SHORT).show();
             }
         }else {
-            file=new File(getFilesDir(),"time\\"+month_in+"月\\"+week_of_month+"_weeksequence.txt");
+
+            file=new File(getFilesDir(),"time\\"+month_in+"月\\"+week_of_month+file_out);
+
             if(file.exists()){
-
                 this.read_core(file);
-
             }else {
                 Toast.makeText(this, "未找到最近的数据", Toast.LENGTH_SHORT).show();
             }
-            file=new File(getFilesDir(),"time\\"+item_mon+"月\\"+cdate.get(Calendar.WEEK_OF_MONTH)+"_weeksequence.txt");
+
+            file=new File(getFilesDir(),"time\\"+item_mon+"月\\"+cdate.get(Calendar.WEEK_OF_MONTH)+file_out);
+
+            if(file.exists()){
+                this.read_core(file);
+            }else {
+                Toast.makeText(this, "未找到最近的数据", Toast.LENGTH_SHORT).show();
+            }
+
+            allcou=4;
+
+            file=new File(getFilesDir(),"time\\"+month_in+"月\\"+week_of_month+file_in);
+
+            if(file.exists()){
+                this.read_core(file);
+            }else {
+                Toast.makeText(this, "未找到最近的数据", Toast.LENGTH_SHORT).show();
+            }
+
+            file=new File(getFilesDir(),"time\\"+item_mon+"月\\"+cdate.get(Calendar.WEEK_OF_MONTH)+file_in);
+
+            if(file.exists()){
+                this.read_core(file);
+            }else {
+                Toast.makeText(this, "未找到最近的数据", Toast.LENGTH_SHORT).show();
+            }
         }
 
     }
@@ -178,27 +230,39 @@ public class MainActivity extends AppCompatActivity {
 
 
 
-    private void read_core(File filename){
+    private void read_core(File filename){            //好愚蠢
+
         try {
+
             BufferedReader Br=new BufferedReader(new FileReader(filename));
-            String t=Br.readLine();
-            while(t!=null){
+            String t=Br.readLine(); String clo=t;
+
+            String[][] temp=new String[20][WIDTH_OF_DATA_SET];
+            int cou=0;
+
+            while(t==DaTe||t==DaTes[0]||t==DaTes[1]||t==DaTes[2]){
                 /*读取数据*/
-                try {//try的机制????????????????????????????????????????????????????????????????????????
-                    node[count][0] = t;
+                if(t!=clo){
+                    node[allcou]=temp;
+                    allcou++;
+                    temp=new String[20][WIDTH_OF_DATA_SET];
+                    cou=0;
+                }
+                clo=t;
+                try {
+                    temp[cou][0] = t;
                 } catch (IndexOutOfBoundsException e) {
-                    node=this.expand(node.length);
-                    node[count][0] = t;
+                    //temp=this.expand(temp);//下次再想？？？？？？？？？？？？？？？？？？？？？？？？？？？？？？？？？？？？？？？？？？？
+                    temp[cou][0] = t;
                 }
                 for (int i = 1; i < WIDTH_OF_DATA_SET; i++) {
-                    node[count][i] = Br.readLine();
+                    temp[cou][i] = Br.readLine();
                 }
-                count++;
+                cou++;
                 /*重复写入以尝试*/
                 t=Br.readLine();
-
-                Br.close();
             }
+            Br.close();
             Toast.makeText(this, "complete", Toast.LENGTH_SHORT).show();
         } catch (FileNotFoundException e) {                 //鲁棒性极差。。。。。。。。。。。。。。。。。。。。。。。。。。。。。。。。。。
             Log.i("haha","haha");
@@ -208,5 +272,10 @@ public class MainActivity extends AppCompatActivity {
             Toast.makeText(this, "fuck", Toast.LENGTH_SHORT).show();
         }
     }
+
+    private void setdata(){
+        /*this way*/
+    }
+
 
 }
