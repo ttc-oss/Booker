@@ -80,6 +80,9 @@ public class MainActivity extends AppCompatActivity {
 
         this.read_by();
 
+        Thread_ReaDData mi=new Thread_ReaDData();
+        mi.start();
+
         this.setdata();
 
         x.setOnClickListener(new View.OnClickListener() {
@@ -235,33 +238,92 @@ public class MainActivity extends AppCompatActivity {
         try {
 
             BufferedReader Br=new BufferedReader(new FileReader(filename));
-            String t=Br.readLine(); String clo=t;
+            String t=Br.readLine();
 
             String[][] temp=new String[20][WIDTH_OF_DATA_SET];
-            int cou=0;
+            int cou=0;int square=0;
 
             while(t==DaTe||t==DaTes[0]||t==DaTes[1]||t==DaTes[2]){
                 /*读取数据*/
-                if(t!=clo){
-                    node[allcou]=temp;
-                    allcou++;
-                    temp=new String[20][WIDTH_OF_DATA_SET];
-                    cou=0;
-                }
-                clo=t;
-                try {
-                    temp[cou][0] = t;
-                } catch (IndexOutOfBoundsException e) {
-                    //temp=this.expand(temp);//下次再想？？？？？？？？？？？？？？？？？？？？？？？？？？？？？？？？？？？？？？？？？？？
-                    temp[cou][0] = t;
-                }
-                for (int i = 1; i < WIDTH_OF_DATA_SET; i++) {
-                    temp[cou][i] = Br.readLine();
-                }
-                cou++;
+  /*。。。。。。。。。*/              if(t==DaTe){
+                    temp[cou][0]=t;
+                    for(int i=1;i<WIDTH_OF_DATA_SET;i++){
+                        temp[cou][i]=Br.readLine();
+                        /*缺扩充*/
+                    }
+                }else if(t==DaTes[0]){
+                    int set=1;
+
+                    if(set!=square){
+                        String[][] tran=new String[cou][WIDTH_OF_DATA_SET];
+                        for(int i=0;i<cou;i++){
+                            tran[i]=temp[i];
+                        }
+                        node[allcou]=tran;
+                        allcou=allcou+set-square;
+                        cou=0;
+                        temp=new String[20][WIDTH_OF_DATA_SET];
+                    }
+                    square=set;
+
+                    temp[cou][0]=t;
+                    for(int i=1;i<WIDTH_OF_DATA_SET;i++){
+                        temp[cou][i]=Br.readLine();
+                        /*缺扩充*/
+                    }
+                }else if(t==DaTes[1]){
+                    int set=2;
+                    if(set!=square){
+                        String[][] tran=new String[cou][WIDTH_OF_DATA_SET];
+                        for(int i=0;i<cou;i++){
+                            tran[i]=temp[i];
+                        }
+                        node[allcou]=tran;
+                        allcou=allcou+set-square;
+                        cou=0;
+                        temp=new String[20][WIDTH_OF_DATA_SET];
+                    }
+                    square=set;
+
+                    temp[cou][0]=t;
+                    for(int i=1;i<WIDTH_OF_DATA_SET;i++){
+                        temp[cou][i]=Br.readLine();
+                        /*缺扩充*/
+                    }
+                }else if(t==DaTes[2]){
+                    int set=3;
+                    if(set!=square){
+                        String[][] tran=new String[cou][WIDTH_OF_DATA_SET];
+                        for(int i=0;i<cou;i++){
+                            tran[i]=temp[i];
+                        }
+                        node[allcou]=tran;
+                        allcou=allcou+set-square;
+                        cou=0;
+                        temp=new String[20][WIDTH_OF_DATA_SET];
+                    }
+                    square=set;
+
+                    temp[cou][0]=t;
+                    for(int i=1;i<WIDTH_OF_DATA_SET;i++){
+                        temp[cou][i]=Br.readLine();
+                        /*缺扩充*/
+                    }
+                }               /*。。。。。。。。。。。。。。。。。。。。。。。*/
+
+                cou++;/*因为对于我这种，必然进入一种情况，在外自增*/
                 /*重复写入以尝试*/
                 t=Br.readLine();
             }
+
+            String[][] tran=new String[cou][WIDTH_OF_DATA_SET];
+            for(int i=0;i<cou;i++){
+                tran[i]=temp[i];
+            }
+            node[allcou]=tran;
+
+
+
             Br.close();
             Toast.makeText(this, "complete", Toast.LENGTH_SHORT).show();
         } catch (FileNotFoundException e) {                 //鲁棒性极差。。。。。。。。。。。。。。。。。。。。。。。。。。。。。。。。。。
@@ -274,7 +336,8 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private void setdata(){
-        /*this way*/
+        ExpandAdapter a=new ExpandAdapter(node);
+        listView.setAdapter(a);
     }
 
 
