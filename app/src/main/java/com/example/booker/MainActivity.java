@@ -40,9 +40,7 @@ public class MainActivity extends AppCompatActivity {
     //////////////////////////当前周or上周的总体数据,但不确定是否为4各一组？？？？？？？？？？？？？？？？？？？？？？？？？？？？？？？？？？？？
     private final int WIDTH_OF_DATA_SET=4;
     /*这里首先默认数据存储时，时间最近的在第一项*//*声明一天最多记20条！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！*/
-    private String[][][] node=new String[8][][];     //应该可以用内部类包装一下。。。。。。。。。。。。。。。。。。。。。。。。。。。。。。。
-    private int allcou=0;
-
+    private String[][][] node;     //应该可以用内部类包装一下。。。。。。。。。。。。。。。。。。。。。。。。。。。。。。。
 
     private ExpandableListView listView;
 
@@ -59,7 +57,6 @@ public class MainActivity extends AppCompatActivity {
     private String[] DaTes=new String[3];
     private final String path_count="moncount.txt";//具体的顺序为，总支出，总收入
     private final String file_out="_weeksequence_out.txt";
-    private final String file_in="_weeksequence_int.txt";
     /*当前日期*/
     private Calendar date;
 
@@ -181,15 +178,6 @@ public class MainActivity extends AppCompatActivity {
                 Toast.makeText(this, "未找到最近的数据", Toast.LENGTH_SHORT).show();
             }
 
-            allcou=4;
-
-            file=new File(getFilesDir(),"time\\"+month_in+"月\\"+week_of_month+file_in);
-
-            if(file.exists()){
-                this.read_core(file);
-            }else {
-                Toast.makeText(this, "未找到最近的数据", Toast.LENGTH_SHORT).show();
-            }
         }else {
 
             file=new File(getFilesDir(),"time\\"+month_in+"月\\"+week_of_month+file_out);
@@ -208,23 +196,8 @@ public class MainActivity extends AppCompatActivity {
                 Toast.makeText(this, "未找到最近的数据", Toast.LENGTH_SHORT).show();
             }
 
-            allcou=4;
 
-            file=new File(getFilesDir(),"time\\"+month_in+"月\\"+week_of_month+file_in);
 
-            if(file.exists()){
-                this.read_core(file);
-            }else {
-                Toast.makeText(this, "未找到最近的数据", Toast.LENGTH_SHORT).show();
-            }
-
-            file=new File(getFilesDir(),"time\\"+item_mon+"月\\"+cdate.get(Calendar.WEEK_OF_MONTH)+file_in);
-
-            if(file.exists()){
-                this.read_core(file);
-            }else {
-                Toast.makeText(this, "未找到最近的数据", Toast.LENGTH_SHORT).show();
-            }
         }
 
     }
@@ -238,90 +211,44 @@ public class MainActivity extends AppCompatActivity {
         try {
 
             BufferedReader Br=new BufferedReader(new FileReader(filename));
-            String t=Br.readLine();
+            String t=Br.readLine(); String comp=t;
 
             String[][] temp=new String[20][WIDTH_OF_DATA_SET];
-            int cou=0;int square=0;
+            String[][][] te_node=new String[4][][];
+            int cou=0;int tocou=0;
 
             while(t==DaTe||t==DaTes[0]||t==DaTes[1]||t==DaTes[2]){
                 /*读取数据*/
-  /*。。。。。。。。。*/              if(t==DaTe){
-                    temp[cou][0]=t;
-                    for(int i=1;i<WIDTH_OF_DATA_SET;i++){
-                        temp[cou][i]=Br.readLine();
-                        /*缺扩充*/
-                    }
-                }else if(t==DaTes[0]){
-                    int set=1;
+                if(comp!=t){//突然想不明白了？？？？？？？？？？？？？？？？？？？？？？？？？？？？？？？？？？？？？？？？？？？？？？？？？？？？？
 
-                    if(set!=square){
-                        String[][] tran=new String[cou][WIDTH_OF_DATA_SET];
-                        for(int i=0;i<cou;i++){
-                            tran[i]=temp[i];
-                        }
-                        node[allcou]=tran;
-                        allcou=allcou+set-square;
-                        cou=0;
-                        temp=new String[20][WIDTH_OF_DATA_SET];
+                    String[][] trans =new String[cou][WIDTH_OF_DATA_SET];
+                    for(int i=0;i<cou;i++){
+                        trans[i]=temp[i];
                     }
-                    square=set;
 
-                    temp[cou][0]=t;
-                    for(int i=1;i<WIDTH_OF_DATA_SET;i++){
-                        temp[cou][i]=Br.readLine();
-                        /*缺扩充*/
-                    }
-                }else if(t==DaTes[1]){
-                    int set=2;
-                    if(set!=square){
-                        String[][] tran=new String[cou][WIDTH_OF_DATA_SET];
-                        for(int i=0;i<cou;i++){
-                            tran[i]=temp[i];
-                        }
-                        node[allcou]=tran;
-                        allcou=allcou+set-square;
-                        cou=0;
-                        temp=new String[20][WIDTH_OF_DATA_SET];
-                    }
-                    square=set;
-
-                    temp[cou][0]=t;
-                    for(int i=1;i<WIDTH_OF_DATA_SET;i++){
-                        temp[cou][i]=Br.readLine();
-                        /*缺扩充*/
-                    }
-                }else if(t==DaTes[2]){
-                    int set=3;
-                    if(set!=square){
-                        String[][] tran=new String[cou][WIDTH_OF_DATA_SET];
-                        for(int i=0;i<cou;i++){
-                            tran[i]=temp[i];
-                        }
-                        node[allcou]=tran;
-                        allcou=allcou+set-square;
-                        cou=0;
-                        temp=new String[20][WIDTH_OF_DATA_SET];
-                    }
-                    square=set;
-
-                    temp[cou][0]=t;
-                    for(int i=1;i<WIDTH_OF_DATA_SET;i++){
-                        temp[cou][i]=Br.readLine();
-                        /*缺扩充*/
-                    }
-                }               /*。。。。。。。。。。。。。。。。。。。。。。。*/
-
+                    te_node[tocou]=trans;
+                    tocou++;
+                    cou=0;
+                    temp=new String[20][WIDTH_OF_DATA_SET];
+                }
+                comp=t;
                 cou++;/*因为对于我这种，必然进入一种情况，在外自增*/
                 /*重复写入以尝试*/
                 t=Br.readLine();
             }
 
-            String[][] tran=new String[cou][WIDTH_OF_DATA_SET];
+            String[][] trans =new String[cou][WIDTH_OF_DATA_SET];
             for(int i=0;i<cou;i++){
-                tran[i]=temp[i];
+                trans[i]=temp[i];
             }
-            node[allcou]=tran;
 
+            te_node[tocou]=trans;
+            tocou++;
+
+            node=new String[tocou][][];
+            for(int i=0;i<tocou;i++){
+                node[i]=te_node[i];
+            }
 
 
             Br.close();
@@ -336,7 +263,7 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private void setdata(){
-        ExpandAdapter a=new ExpandAdapter(node);
+        ExpandAdapter a=new ExpandAdapter(node,MainActivity.this);
         listView.setAdapter(a);
     }
 
