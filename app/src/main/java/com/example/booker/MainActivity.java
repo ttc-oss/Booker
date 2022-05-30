@@ -1,21 +1,19 @@
 package com.example.booker;
 /*在程序运行开始前读取一次磁盘数据，加载至映射数组中，（前后仅两次操作文件）
         当使用操作界面进行时，不能存储之后日期的数据，如要存则提醒不能，如此带来的好处是：可先进行一次判断是否为当前日期的存储，若是，可直接在映射数组最后添加，不是，则需要进行判断，总之在映射数组中始终是以时间为标准的一个筛选结构
-
-           比较字符串的哈希值和直接比较字符串？？？？
-        结论：
-        问题部分：
-        1.那么第一个问题就是如何在Activity之间传递当前的映射数组
-
         顺序：
         1.时间
         2.种类
         3.账户
         4.金额
-
+        路径规则：
+            第一级：
+                时间                                                          种类
+            第二级（时间）：                                                    第二级（种类）：
+                某月                                                              各种类
+            第三级（时间）：                                                    第三级（种类）：
+                第N周的具体文件，   本月的汇总数额（path_count）                        某月的具体文件          该类别总计
         */
-
-/*现在应该可以认为数据提取较为准确了，    下一步投射至list view 创建线程读取数据*/
 
 import androidx.appcompat.app.AppCompatActivity;
 
@@ -59,12 +57,16 @@ public class MainActivity extends AppCompatActivity {
     private final String file_out="_weeksequence_out.txt";
     /*当前日期*/
     private Calendar date;
+    /*该适配器被设置成全局变量是为了notifyDataChange*/
+    private ExpandAdapter adapter;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
         getSupportActionBar().hide();
+        this.start_service();
+
 
         this.Init_Core();
 
@@ -77,8 +79,6 @@ public class MainActivity extends AppCompatActivity {
 
         this.read_by();
 
-        Thread_ReaDData mi=new Thread_ReaDData();
-        mi.start();
 
         this.setdata();
 
@@ -120,6 +120,9 @@ public class MainActivity extends AppCompatActivity {
             BufferedReader Br = new BufferedReader(new FileReader(file));
             go.setText(Br.readLine());      //鲁棒性很差？？？？？？？？？？？？？，具体来说并没有一种安全机制使得一定读到所需内容？？？？？？？？？？？？？？？？？？
             come.setText(Br.readLine());
+            /*重盖架构*/
+
+
             to.setText(Br.readLine());
             Br.close();
         } catch (FileNotFoundException e) {
@@ -262,10 +265,17 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
-    private void setdata(){
-        ExpandAdapter a=new ExpandAdapter(node,MainActivity.this);
-        listView.setAdapter(a);
+    private void setdata(){////////////////////////??????????????????????????????
+        adapter=new ExpandAdapter(node,MainActivity.this);
+        listView.setAdapter(adapter);
+
     }
 
+
+
+    private void start_service(){
+        Intent in=new Intent(MainActivity.this,Data_compile_service.class);
+        startService(in);
+    }
 
 }
