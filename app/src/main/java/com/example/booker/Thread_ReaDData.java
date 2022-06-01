@@ -1,5 +1,7 @@
 package com.example.booker;
 
+import android.os.Handler;
+import android.os.Message;
 import android.util.Log;
 
 import java.io.BufferedReader;
@@ -7,31 +9,38 @@ import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.IOException;
-import java.util.logging.Handler;
 
 /*忘记测试每月有几周*/
 public class Thread_ReaDData extends Thread {
 
-    public Handler handler;
     private File rootpath;
+    private Handler handler;
 
     private final String INDEX_time="time";
     private final String INDEX_category="category";
     private final int WIDTH_OF_DATA_SET=4;
     /*以下用来标记每一级最大存储容量的依据*/
     private final int DAYOFWEEK=7;
-    private final int WEEKOFMON=6;
+    private final int WEEKOFMON=6*2;
     private final int MONOFYEAR=12;
+    /*种类*/
+    private final int TOTAL_CATEGORY=13;
+    /*message 标记：*/
+    private final int TIMESTRING=0x12;
+    private final int CATEGORYSTRING=0x24;
 
-    private final String path_count="moncount.txt";
+    private final String DAY_count="moncount.txt";
+    private final String CATE_count="catecount.txt";
     /*四层数据架构：
     *   1.月 2.周 3.天*/
 
     /*数据核心：：：：*/
-    private String [] [] [] [] [] data_core;/*【月】【周】【日】【一天所记录】【原始数据】*/
+    private String [] [] [] [] [] data_time_core;/*【月】【周】【日】【一天所记录】【原始数据】*/
+    private String [] [] [] [] data_cate_core;
 
-    Thread_ReaDData(File rootpath){
+    Thread_ReaDData(File rootpath,Handler handler){
         this.rootpath=rootpath;
+        this.handler=handler;
     }
 
     @Override
@@ -53,8 +62,8 @@ public class Thread_ReaDData extends Thread {
 
                     for(int j=0;j<secondpage_file.length;j++){
                         if(secondpage_file[j].isFile()){
-                            if(secondpage_file[j].getName()!=path_count) {
-                                receive_da2t[weekofmon_cou] = this.read_data(secondpage_file[j]);
+                            if(secondpage_file[j].getName()!=DAY_count) {
+                                receive_da2t[weekofmon_cou] = this.readtime_data(secondpage_file[j]);
                                 if(receive_da2t[weekofmon_cou]==null){
                                     Log.i("Thread","Something was wrong");
                                     return;
@@ -78,21 +87,43 @@ public class Thread_ReaDData extends Thread {
                 }
 
             }
-            data_core=new String[monofyear_cou][][][][];
+            data_time_core=new String[monofyear_cou][][][][];
             for(int i=0;i<monofyear_cou;i++){
-                data_core[i]=receive_da1t[i];
+                data_time_core[i]=receive_da1t[i];
             }
         }
 
-        /*至这里以时间顺序的读取完成*/
-
-
+        Message message=Message.obtain();
+        message.obj=data_time_core;
+        message.what=TIMESTRING;
+        handler.handleMessage(message);
+        /*至这里以时间顺序的读取完成,并且数据传回service*/
+        /*种类读取*/
+        file =new File(rootpath,INDEX_category);
+        if(file.exists()){
+            String [][][][] receive_cate1=new String[TOTAL_CATEGORY][][][]; int cate1_cou=0;
+            File[] files=file.listFiles();
+            for(int i=0;i<files.length;i++){
+                if(files[i].isDirectory()){
+                    String[][][] receive_cate2=new String[MONOFYEAR][][];
+                    File[]  secondpage_file=files[i].listFiles();  int cate2_cou=0;
+                    for(int j=0;j<secondpage_file.length;j++){
+                        if(secondpage_file[j].isFile()){
+                            if(secondpage_file[j].getName()!=CATE_count){
+                                receive_cate2[cate2_cou]=readcate_data(secondpage_file[j]);
+                                cate2_cou++;
+                            }
+                        }
+                    }
+                }
+            }
+        }
 
     }
 
 
 
-    private String[][][] read_data(File file){
+    private String[][][] readtime_data(File file){
         try {
             BufferedReader Br=new BufferedReader(new FileReader(file));
             String t=Br.readLine();String date_comp=t;
@@ -145,4 +176,31 @@ public class Thread_ReaDData extends Thread {
         }
         return null;
     }
+    private String[][] readcate_data(File file){
+        String[][] data;
+        try {
+            BufferedReader Br=new BufferedReader(new FileReader(file));
+            String[][] temp=new String[50][WIDTH_OF_DATA_SET];//TODO:这个可以暂定这个值码
+            int temp_cou=0;
+            String t=Br.readLine();
+            while(t!=null){
+                temp[temp_cou][0]=t;
+                for(int i=0;i<WIDTH_OF_DATA_SET;i++){
+                    temp[temp_cou][i]=Br.readLine();
+                }
+                temp_cou++;
+
+                t=Br.readLine();
+            }
+        } catch (FileNotFoundException e) {
+            //TODO:WHAT
+            e.printStackTrace();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+
+
+        return data;
+    }
+
 }
