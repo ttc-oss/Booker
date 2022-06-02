@@ -1,3 +1,4 @@
+//TODO:放弃使用RecyclerView实现多级，第一版使用Exapandablelistview 按月处理
 package com.example.booker;
 /*在程序运行开始前读取一次磁盘数据，加载至映射数组中，（前后仅两次操作文件）
         当使用操作界面进行时，不能存储之后日期的数据，如要存则提醒不能，如此带来的好处是：可先进行一次判断是否为当前日期的存储，若是，可直接在映射数组最后添加，不是，则需要进行判断，总之在映射数组中始终是以时间为标准的一个筛选结构
@@ -33,7 +34,10 @@ import java.io.FileReader;
 import java.io.IOException;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
-
+//TODO；未加list view选中响应
+//TODO:添加设置选项
+//TODO：广播未写
+//TODO:新的方向：fragment！！！！！
 public class MainActivity extends AppCompatActivity {
     //////////////////////////当前周or上周的总体数据,但不确定是否为4各一组？？？？？？？？？？？？？？？？？？？？？？？？？？？？？？？？？？？？
     private final int WIDTH_OF_DATA_SET=4;
@@ -59,6 +63,8 @@ public class MainActivity extends AppCompatActivity {
     private Calendar date;
     /*该适配器被设置成全局变量是为了notifyDataChange*/
     private ExpandAdapter adapter;
+    /*来自后台的时间记录数据：*/
+    private String[][][][][] time_data=null;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -66,7 +72,6 @@ public class MainActivity extends AppCompatActivity {
         setContentView(R.layout.activity_main);
         getSupportActionBar().hide();
         this.start_service();
-
 
         this.Init_Core();
 
@@ -92,15 +97,22 @@ public class MainActivity extends AppCompatActivity {
         y.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-
+                if(time_data==null){
+                    //TODO:首先加入暂停弹出框
+                    while (time_data==null);
+                    //TODO:将弹出框去除
+                }
+                Intent intent=new Intent(MainActivity.this,Historical.class);
+                intent.putExtra("dataoftime",time_data);
+                startActivity(intent);
             }
         });
     }
     /*初始化控件*/
     private void Init_Core(){
         listView=findViewById(R.id.My_list);
-        x=(Button) findViewById(R.id.record_B);
-        y=(Button) findViewById(R.id.more);
+        x=findViewById(R.id.record_B);
+        y=findViewById(R.id.more);
         go=findViewById(R.id.cost);
         come=findViewById(R.id.receive);
         to=findViewById(R.id.count);

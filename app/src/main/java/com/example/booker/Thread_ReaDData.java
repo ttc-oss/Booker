@@ -214,7 +214,6 @@ public class Thread_ReaDData extends Thread {
                 data[i]=temp[i];
             }
         } catch (FileNotFoundException e) {
-            //TODO:WHAT
             e.printStackTrace();
         } catch (IOException e) {
             e.printStackTrace();
