@@ -101,24 +101,40 @@ public class Thread_ReaDData extends Thread {
         /*种类读取*/
         file =new File(rootpath,INDEX_category);
         if(file.exists()){
-            String [][][][] receive_cate1=new String[TOTAL_CATEGORY][][][]; int cate1_cou=0;
+            String [][][][] receive_cate1t=new String[TOTAL_CATEGORY][][][]; int cate1_cou=0;
             File[] files=file.listFiles();
             for(int i=0;i<files.length;i++){
                 if(files[i].isDirectory()){
-                    String[][][] receive_cate2=new String[MONOFYEAR][][];
+                    String[][][] receive_cate2t=new String[MONOFYEAR][][];
                     File[]  secondpage_file=files[i].listFiles();  int cate2_cou=0;
                     for(int j=0;j<secondpage_file.length;j++){
                         if(secondpage_file[j].isFile()){
                             if(secondpage_file[j].getName()!=CATE_count){
-                                receive_cate2[cate2_cou]=readcate_data(secondpage_file[j]);
+                                receive_cate2t[cate2_cou]=readcate_data(secondpage_file[j]);
                                 cate2_cou++;
                             }
                         }
                     }
+                    String[][][] receive_cate2=new String[cate2_cou][][];
+                    for(int j=0;j<cate2_cou;j++){
+                        receive_cate2[j]=receive_cate2t[j];
+                    }
+                    receive_cate1t[cate1_cou]=receive_cate2;
+                    cate1_cou++;
                 }
+            }
+            data_cate_core=new String[cate1_cou][][][];
+            for(int i=0;i<cate1_cou;i++){
+                data_cate_core[i]=receive_cate1t[i];
             }
         }
 
+        message=Message.obtain();
+        message.obj=data_cate_core;
+        message.what=CATEGORYSTRING;
+        handler.handleMessage(message);
+
+        Log.i("Thread","complete");
     }
 
 
@@ -176,8 +192,9 @@ public class Thread_ReaDData extends Thread {
         }
         return null;
     }
+
     private String[][] readcate_data(File file){
-        String[][] data;
+        String[][] data=null;
         try {
             BufferedReader Br=new BufferedReader(new FileReader(file));
             String[][] temp=new String[50][WIDTH_OF_DATA_SET];//TODO:这个可以暂定这个值码
@@ -192,14 +209,16 @@ public class Thread_ReaDData extends Thread {
 
                 t=Br.readLine();
             }
+            data=new String[temp_cou][];
+            for(int i=0;i<temp_cou;i++){
+                data[i]=temp[i];
+            }
         } catch (FileNotFoundException e) {
             //TODO:WHAT
             e.printStackTrace();
         } catch (IOException e) {
             e.printStackTrace();
         }
-
-
         return data;
     }
 

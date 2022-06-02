@@ -25,7 +25,7 @@ public class Data_compile_service extends Service {
             if(msg.what==TIMESTRING){
                 time_of_data=(String[][][][][]) msg.obj;
             }else if(msg.what==CATEGORYSTRING){
-
+                category_of_data=(String[][][][]) msg.obj;
             }
 
         }
@@ -38,6 +38,7 @@ public class Data_compile_service extends Service {
         super.onCreate();
         Thread_ReaDData thread=new Thread_ReaDData(getFilesDir(),handler);
         thread.start();
+
     }
 
     @Override
