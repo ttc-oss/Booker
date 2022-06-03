@@ -1,21 +1,6 @@
 //TODO:放弃使用RecyclerView实现多级，第一版使用Exapandablelistview 按月处理
+//TODO:第二版添加图表统计，备注，图像（实际为数据库）的实现方案
 package com.example.booker;
-/*在程序运行开始前读取一次磁盘数据，加载至映射数组中，（前后仅两次操作文件）
-        当使用操作界面进行时，不能存储之后日期的数据，如要存则提醒不能，如此带来的好处是：可先进行一次判断是否为当前日期的存储，若是，可直接在映射数组最后添加，不是，则需要进行判断，总之在映射数组中始终是以时间为标准的一个筛选结构
-        顺序：
-        1.时间
-        2.种类
-        3.账户
-        4.金额
-        路径规则：
-            第一级：
-                时间                                                          种类
-            第二级（时间）：                                                    第二级（种类）：
-                某月                                                              各种类
-            第三级（时间）：                                                    第三级（种类）：
-                第N周的具体文件，   本月的汇总数额（path_count）                        某月的具体文件          该类别总计
-        */
-
 import androidx.appcompat.app.AppCompatActivity;
 
 import android.content.Intent;
@@ -38,10 +23,10 @@ import java.util.Calendar;
 //TODO:添加设置选项
 //TODO：广播未写
 //TODO:新的方向：fragment！！！！！
+//TODO:未添加 synchronized
 public class MainActivity extends AppCompatActivity {
-    //////////////////////////当前周or上周的总体数据,但不确定是否为4各一组？？？？？？？？？？？？？？？？？？？？？？？？？？？？？？？？？？？？
     private final int WIDTH_OF_DATA_SET=4;
-    /*这里首先默认数据存储时，时间最近的在第一项*//*声明一天最多记20条！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！*/
+    /*数据核心元*/
     private String[][][] node;     //应该可以用内部类包装一下。。。。。。。。。。。。。。。。。。。。。。。。。。。。。。。
 
     private ExpandableListView listView;
@@ -50,7 +35,6 @@ public class MainActivity extends AppCompatActivity {
 
     private Button x,y;
 
-    /*文件类用于读取分布类型数据*/
     private File file;
 
     private String month_in;
@@ -83,7 +67,6 @@ public class MainActivity extends AppCompatActivity {
         this.money_text(this.month_in);
 
         this.read_by();
-
 
         this.setdata();
 
@@ -151,9 +134,6 @@ public class MainActivity extends AppCompatActivity {
         }
         return re;
     }*/
-
-
-
     /*详细信息读取*/
     private void read_by(){                     //整理解析该函数。。。。。。。。。。。。。。。。。。。。。。。。。。。。。。。。。。。。。。。。。。
 
@@ -179,8 +159,6 @@ public class MainActivity extends AppCompatActivity {
                 break;
             }
         }
-
-
 
         /*第二部分根据判定开始读取数据*/
         if(file_switch){                            //改吧，明显写的复用率极低。。。。。。。。。。。。。。。。。。。。。。。。。。。。。。。。。。。。。。。。。存在大量的临时方案
@@ -282,7 +260,6 @@ public class MainActivity extends AppCompatActivity {
         listView.setAdapter(adapter);
 
     }
-
 
 
     private void start_service(){

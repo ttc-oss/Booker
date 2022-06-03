@@ -46,7 +46,7 @@ public class Thread_ReaDData extends Thread {
     @Override
     public void run() {
         super.run();
-
+//TODO:目前时间只是月份上倒过来了，但每一项的顺序都需要颠倒
         File file =new File(rootpath,INDEX_time);
         if(file.exists()){
             File[] files= file.listFiles();
@@ -89,7 +89,7 @@ public class Thread_ReaDData extends Thread {
             }
             data_time_core=new String[monofyear_cou][][][][];
             for(int i=0;i<monofyear_cou;i++){
-                data_time_core[i]=receive_da1t[i];
+                data_time_core[i]=receive_da1t[monofyear_cou-i-1];
             }
         }
 
